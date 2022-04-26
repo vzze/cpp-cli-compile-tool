@@ -54,6 +54,8 @@ int main(int argc, char ** argv) {
     std::string comp = "";
     std::string outf = "";
 
+    rec("./", cmd); 
+
     for(size_t i = 1; i < argc; i++) { 
         std::string arg = argv[i];
 
@@ -74,9 +76,8 @@ int main(int argc, char ** argv) {
             cmd += arg + " ";
     }
 
-    rec("./", cmd); 
-
     cmd.insert(0, comp);
+
     cmd += outf;
 
     std::cout << cmd << '\n';
