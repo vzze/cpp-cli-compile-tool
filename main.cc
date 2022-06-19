@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-std::vector<std::string> file_exts = {
+std::vector<std::string_view> file_exts = {
     ".C", ".cc", ".cp", ".cxx", ".cpp", ".c++", ".ixx", ".cppm",
     ".c"
 };
@@ -12,7 +12,7 @@ std::vector<std::string> file_exts = {
 void rec(std::string root, std::string & cmd) {
     for(auto & f : std::filesystem::directory_iterator(root)) {
         if(!f.is_directory()) {
-            for(std::string ext : file_exts) {
+            for(std::string_view ext : file_exts) {
                 std::string path = f.path().string();
 
                 size_t loc = path.find(ext);
@@ -26,7 +26,7 @@ void rec(std::string root, std::string & cmd) {
         } else {
             std::string dir = f.path().string();
 
-            dir = dir.substr(dir.find_last_of("/\\") + 1);            
+            dir = dir.substr(dir.find_last_of("/\\") + 1);
 
             if(dir == "include") {
                 cmd.insert(0, "-I" + f.path().string().substr(2) + " ");
@@ -37,14 +37,16 @@ void rec(std::string root, std::string & cmd) {
     }
 }
 
-std::vector<std::string> flags {
-    "-compiler:", "-outfile:",
-    "-c:", "-o:"
+std::vector<std::string_view> flags {
+    "-compiler:", "-outfile:", "-dir:",
+    "-c:",        "-o:",       "-d:"
 };
 
 int main(int argc, char ** argv) {
     if(argc == 1) {
-        std::cout << "cmd -compiler:[String] -outfile:[String] [String][]" << '\n';
+        std::cout << "cmd -compiler:[String] -outfile:[String] -dir:[String] [String][]\n";
+
+        std::cout << "cmd -compiler:g++ -outfile:bin/main -dir:src -std=c++17 -O2\n";
 
         return 0;
     }
@@ -54,9 +56,9 @@ int main(int argc, char ** argv) {
     std::string comp = "";
     std::string outf = "";
 
-    rec("./", cmd); 
+    std::string dir = "";
 
-    for(size_t i = 1; i < argc; i++) { 
+    for(size_t i = 1; i < argc; i++) {
         std::string arg = argv[i];
 
         bool fF = false;
@@ -69,12 +71,16 @@ int main(int argc, char ** argv) {
                 } else if(flag == "-outfile:" || flag == "-o:") {
                     outf = "-o ";
                     outf += arg.substr(flag.length());
+                } else if(flag == "-dir:" || flag == "-d:") {
+                    dir = arg.substr(flag.length());
                 }
             }
         }
         if(!fF)
             cmd += arg + " ";
     }
+
+    rec(".\\" + dir, cmd);
 
     cmd.insert(0, comp);
 
