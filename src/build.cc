@@ -1,12 +1,13 @@
-#include <vector>
-#include <string>
-#include <filesystem>
-
-#include <iostream>
+#include "build.h"
 
 std::vector<std::string_view> file_exts = {
     ".C", ".cc", ".cp", ".cxx", ".cpp", ".c++", ".ixx", ".cppm",
     ".c"
+};
+
+std::vector<std::string_view> flags = {
+    "-compiler:", "-outfile:", "-dir:",
+    "-c:",        "-o:",       "-d:"
 };
 
 void rec(std::string root, std::string & cmd) {
@@ -37,20 +38,7 @@ void rec(std::string root, std::string & cmd) {
     }
 }
 
-std::vector<std::string_view> flags {
-    "-compiler:", "-outfile:", "-dir:",
-    "-c:",        "-o:",       "-d:"
-};
-
-int main(int argc, char ** argv) {
-    if(argc == 1) {
-        std::cout << "cmd -compiler:[String] -outfile:[String] -dir:[String] [String][]\n";
-
-        std::cout << "cmd -compiler:g++ -outfile:bin/main -dir:src -std=c++17 -O2\n";
-
-        return 0;
-    }
-
+int build(std::vector<std::string> & args) {
     std::string cmd;
 
     std::string comp = "";
@@ -58,9 +46,7 @@ int main(int argc, char ** argv) {
 
     std::string dir = "";
 
-    for(size_t i = 1; i < argc; i++) {
-        std::string arg = argv[i];
-
+    for(auto arg : args) {
         bool fF = false;
 
         for(auto flag : flags) {
@@ -89,4 +75,5 @@ int main(int argc, char ** argv) {
     std::cout << cmd << '\n';
 
     return system(cmd.c_str());
+
 }
